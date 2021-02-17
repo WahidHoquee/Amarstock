@@ -1,16 +1,34 @@
 const puppeteer = require('puppeteer');
 const fileSystem = require('fs');
 
-setTimeout(async () => {
+const interval = 1000;
+//Uncomment the following line to update the scraper data once in a week
+// const interval = 604800000
+
+
+setInterval(async () => {
   const BASE_URL = 'https://stockbangladesh.com/dse/stock/beximco/bangladesh-export-import-co-limited/fundamental/details';
 
   const browser = await puppeteer.launch({
-      headless: true
+    headless: false
   });
   
   const page = await browser.newPage();
-  await page.goto(BASE_URL);
-  await page.waitForSelector('#yearly_nav36')
+  await page.setDefaultNavigationTimeout(0);
+
+  await page.setRequestInterception(true);
+
+  page.on('request', (request) => {
+    if(['image', 'stylesheet', 'font'].includes(request.resourceType())) {
+      request.abort();
+    } else {
+      request.continue();
+    }
+  })
+
+
+  await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+  await page.waitFor(60000);
 
   const sectorDetails = await page.evaluate(() => {
     const yearlyNavSelector = Array.from(document.querySelectorAll('#yearly_nav36 .highcharts-point.highcharts-color-0'));
@@ -23,7 +41,7 @@ setTimeout(async () => {
     const DividendHistory = [];
     for(let i=0; i < dividendHistorySelector.length/2; i++){
       const stockInfo = dividendHistorySelector[i];
-      const cashInfo = dividendHistorySelector[20 + i];
+      const cashInfo = dividendHistorySelector[(dividendHistorySelector.length/2) + i];
 
       DividendHistory.push({
         year: stockInfo.point.category,
@@ -39,12 +57,11 @@ setTimeout(async () => {
       YearlyEPS
     }
   })
-
-  fileSystem.writeFile('sector-details.json', JSON.stringify(sectorDetails), err => {
+  fileSystem.writeFile(`${__dirname}/sector-details.json`, JSON.stringify(sectorDetails), err => {
     if(err){
       throw err;
     }
   })
   await browser.close();
 
-},3000);
+},interval);

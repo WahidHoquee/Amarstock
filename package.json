@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "sector-details": "node grabber/sector-details.js",
+    "sector-pe": "node grabber/sector-pe.js"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +15,7 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "nodemon": "^2.0.7",
     "puppeteer": "^7.1.0"
   }
 }
