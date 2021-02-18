@@ -1,4 +1,4 @@
-# Stock-Bangladesh Data Scrapping!
+# Amar-Stock Data Scrapping!
 
 ## TO CREATE NODEJS ENVIRONMENT & START THE EXPRESSJS SERVER
 
